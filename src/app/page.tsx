@@ -4,11 +4,12 @@ import React, { useState, useEffect } from 'react';
 import { clsx } from 'clsx';
 import { Piano } from '@/components/Piano';
 import { usePiano } from '@/hooks/usePiano';
-import { PASSWORD_MELODY, PLAY_MELODY, GAME_KEYS, HOME_KEYS } from '@/lib/constants';
+import { PASSWORD_MELODY, PLAY_MELODY, GAME_KEYS, HOME_KEYS, LEVELS, LevelConfig } from '@/lib/constants';
 import { TextDecipher } from '@/components/TextDecipher';
 
 export default function Home() {
   const [view, setView] = useState<'HOME' | 'LOCKED' | 'UNLOCKED'>('HOME');
+  const [currentLevel, setCurrentLevel] = useState<LevelConfig>(LEVELS[0]); // Start with Level 1
 
   return (
     <main className="min-h-screen bg-neutral-900 flex flex-col items-center justify-center overflow-hidden relative">
@@ -38,7 +39,12 @@ export default function Home() {
       </button>
 
       {view === 'HOME' && <HomeView onPlaySuccess={() => setView('LOCKED')} />}
-      {view === 'LOCKED' && <LockedView onSuccess={() => setView('UNLOCKED')} />}
+      {view === 'LOCKED' && (
+        <LockedView 
+          level={currentLevel} 
+          onSuccess={() => setView('UNLOCKED')} 
+        />
+      )}
       {view === 'UNLOCKED' && <UnlockedView onLock={() => setView('HOME')} />}
     </main>
   );
@@ -96,28 +102,31 @@ function HomeView({ onPlaySuccess }: { onPlaySuccess: () => void }) {
   );
 }
 
-function LockedView({ onSuccess }: { onSuccess: () => void }) {
+function LockedView({ level, onSuccess }: { level: LevelConfig; onSuccess: () => void }) {
   const { activeNote, history, playNote, reset, lastInteraction, isError } = usePiano({
-    keys: GAME_KEYS,
-    targetMelody: PASSWORD_MELODY,
+    keys: level.keys,
+    targetMelody: level.melody,
     onSuccess,
   });
 
   return (
     <div className="max-w-4xl w-full flex flex-col items-center space-y-8 animate-in zoom-in duration-300">
       <div className="text-center space-y-2">
+        <h2 className="text-xs font-bold tracking-[0.2em] text-indigo-400 uppercase">
+          Level {level.id}
+        </h2>
         <h1 className="text-2xl font-light tracking-widest text-white uppercase">
-          Enter Password
+          {level.name}
         </h1>
-        <p className="text-neutral-500 text-sm">
-          Play the melody to unlock
+        <p className="text-neutral-500 text-sm italic mt-2">
+          Hint: {level.hint}
         </p>
       </div>
 
       <div className="relative p-6 bg-neutral-800 rounded-xl shadow-2xl shadow-black/50 border border-neutral-700">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-1 bg-neutral-700 rounded-full" />
         <Piano 
-          keys={GAME_KEYS} 
+          keys={level.keys} 
           activeNote={activeNote} 
           onPlay={playNote}
           lastInteraction={lastInteraction}

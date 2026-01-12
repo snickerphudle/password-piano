@@ -6,12 +6,18 @@ export interface KeyConfig {
   isBlack: boolean;
 }
 
+export interface LevelConfig {
+  id: number;
+  name: string;
+  hint: string;
+  melody: Note[];
+  keys: KeyConfig[];
+}
+
 // 2-octave keyboard → piano note mapping
 // Lower octave = C4–B4
 // Upper octave = C5–B5
 
-// We use this object to easily lookup note -> label for UI rendering
-// And label -> note for event handling (though we can search the array too)
 export const GAME_KEYS: KeyConfig[] = [
   // LOWER OCTAVE (C4)
   { note: 'C4', label: 'A', isBlack: false },
@@ -75,8 +81,18 @@ export const HOME_KEYS: KeyConfig[] = [
   { note: 'B5', label: '', isBlack: false },
 ];
 
-// Default to GAME_KEYS for backward compatibility if needed, but we'll dynamic switch
-export const PIANO_KEYS = GAME_KEYS;
+export const LEVELS: LevelConfig[] = [
+  {
+    id: 1,
+    name: "Easy as ABC",
+    hint: "The alphabet starts here...",
+    // A, B, C mapping based on musical notation: A4, B4, C5
+    // Note: In music, A-B-C usually refers to A, B, C notes.
+    // A4 = 'H', B4 = 'J', C5 = 'K' in our keyboard mapping.
+    melody: ['A4', 'B4', 'C5'], 
+    keys: GAME_KEYS
+  },
+  // We can add more levels here later
+];
 
-export const PASSWORD_MELODY: Note[] = ['C4', 'D4', 'E4', 'C4'];
 export const PLAY_MELODY: Note[] = ['C4', 'E4', 'G4', 'C5'];
