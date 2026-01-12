@@ -36,13 +36,9 @@ export const usePiano = ({ keys, targetMelody, onSuccess }: UsePianoProps) => {
     lastNoteTime.current = now;
 
     setHistory((prev) => {
-      // If error is currently showing, don't accept input until it clears?
-      // Or just clear it immediately. Let's clear immediately for responsiveness.
       if (isError) {
         setIsError(false);
-        return [note]; // Start new sequence with this note? 
-        // Actually, if we are in error state, the previous history is about to be wiped.
-        // But for UX, better to just let this new note be the start of a fresh attempt.
+        return [note];
       }
 
       let potentialHistory = (timeSinceLast > RESET_DELAY_MS) ? [] : [...prev];
@@ -62,7 +58,13 @@ export const usePiano = ({ keys, targetMelody, onSuccess }: UsePianoProps) => {
         });
 
         if (newHistory.length === targetMelody.length) {
-           if (onSuccess) onSuccess();
+           // Wrap onSuccess in setTimeout to avoid "state update during render" error
+           // if this callback triggers a parent state change (like setView)
+           if (onSuccess) {
+             setTimeout(() => {
+               onSuccess();
+             }, 0);
+           }
            return []; 
         }
 
@@ -77,10 +79,8 @@ export const usePiano = ({ keys, targetMelody, onSuccess }: UsePianoProps) => {
           id: now,
         });
 
-        // Add the wrong note to history temporarily so we can show it turning red
         const errorHistory = [...potentialHistory, note];
         
-        // Reset history after a delay to show the red error state
         setTimeout(() => {
           setIsError(false);
           setHistory([]);
