@@ -43,12 +43,36 @@ export const GAME_KEYS: KeyConfig[] = [
 ];
 
 export const HOME_KEYS: KeyConfig[] = [
-  // C Arpeggio: C4, E4, G4, C5
-  // Mapped to P, L, A, Y
+  // C Arpeggio: C4, E4, G4, C5 mapped to P, L, A, Y
+  // Visually 2 octaves (C4-B5) to be symmetrical/consistent with Game Mode
+  
+  // LOWER OCTAVE (C4)
   { note: 'C4', label: 'P', isBlack: false },
+  { note: 'C#4', label: '', isBlack: true },
+  { note: 'D4', label: '', isBlack: false },
+  { note: 'D#4', label: '', isBlack: true },
   { note: 'E4', label: 'L', isBlack: false },
+  { note: 'F4', label: '', isBlack: false },
+  { note: 'F#4', label: '', isBlack: true },
   { note: 'G4', label: 'A', isBlack: false },
+  { note: 'G#4', label: '', isBlack: true },
+  { note: 'A4', label: '', isBlack: false },
+  { note: 'A#4', label: '', isBlack: true },
+  { note: 'B4', label: '', isBlack: false },
+
+  // UPPER OCTAVE (C5)
   { note: 'C5', label: 'Y', isBlack: false },
+  { note: 'C#5', label: '', isBlack: true },
+  { note: 'D5', label: '', isBlack: false },
+  { note: 'D#5', label: '', isBlack: true },
+  { note: 'E5', label: '', isBlack: false },
+  { note: 'F5', label: '', isBlack: false },
+  { note: 'F#5', label: '', isBlack: true },
+  { note: 'G5', label: '', isBlack: false },
+  { note: 'G#5', label: '', isBlack: true },
+  { note: 'A5', label: '', isBlack: false },
+  { note: 'A#5', label: '', isBlack: true },
+  { note: 'B5', label: '', isBlack: false },
 ];
 
 // Default to GAME_KEYS for backward compatibility if needed, but we'll dynamic switch
