@@ -44,7 +44,7 @@ export default function Home() {
 }
 
 function HomeView({ onPlaySuccess }: { onPlaySuccess: () => void }) {
-  const { activeNote, playNote } = usePiano({
+  const { activeNote, playNote, lastInteraction } = usePiano({
     keys: HOME_KEYS,
     targetMelody: PLAY_MELODY,
     onSuccess: onPlaySuccess,
@@ -73,7 +73,7 @@ function HomeView({ onPlaySuccess }: { onPlaySuccess: () => void }) {
              px-4 pb-4
            `}
         >
-          <span className="text-transparent p-1 bg-clip-text bg-gradient-to-r from-indigo-500 to-purple-500 drop-shadow-[0_10px_10px_rgba(79,70,229,0.5)]">
+          <span className="inline-block p-2 text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 to-purple-500 drop-shadow-[0_10px_10px_rgba(79,70,229,0.5)]">
             PIANO
           </span>
         </div>
@@ -84,14 +84,19 @@ function HomeView({ onPlaySuccess }: { onPlaySuccess: () => void }) {
       </div>
 
       <div className={`relative p-8 bg-neutral-900/80 rounded-2xl border border-neutral-800/50 backdrop-blur-md shadow-2xl shadow-black transition-all duration-1000 delay-[3000ms] ${showPianoText ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}>
-        <Piano keys={HOME_KEYS} activeNote={activeNote} onPlay={playNote} />
+        <Piano 
+          keys={HOME_KEYS} 
+          activeNote={activeNote} 
+          onPlay={playNote}
+          lastInteraction={lastInteraction}
+        />
       </div>
     </div>
   );
 }
 
 function LockedView({ onSuccess }: { onSuccess: () => void }) {
-  const { activeNote, history, playNote, reset } = usePiano({
+  const { activeNote, history, playNote, reset, lastInteraction } = usePiano({
     keys: GAME_KEYS,
     targetMelody: PASSWORD_MELODY,
     onSuccess,
@@ -110,7 +115,12 @@ function LockedView({ onSuccess }: { onSuccess: () => void }) {
 
       <div className="relative p-6 bg-neutral-800 rounded-xl shadow-2xl shadow-black/50 border border-neutral-700">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-1 bg-neutral-700 rounded-full" />
-        <Piano keys={GAME_KEYS} activeNote={activeNote} onPlay={playNote} />
+        <Piano 
+          keys={GAME_KEYS} 
+          activeNote={activeNote} 
+          onPlay={playNote}
+          lastInteraction={lastInteraction}
+        />
       </div>
 
       {/* Visual Feedback / Progress */}
