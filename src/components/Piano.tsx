@@ -1,18 +1,19 @@
 import React from 'react';
-import { PIANO_KEYS, Note } from '@/lib/constants';
+import { KeyConfig, Note } from '@/lib/constants';
 import { PianoKey } from './PianoKey';
 
 interface PianoProps {
+  keys: KeyConfig[];
   activeNote: Note | null;
   onPlay: (note: Note) => void;
 }
 
-export const Piano: React.FC<PianoProps> = ({ activeNote, onPlay }) => {
+export const Piano: React.FC<PianoProps> = ({ keys, activeNote, onPlay }) => {
   return (
     <div className="flex items-start justify-center p-4 select-none overflow-x-auto max-w-full">
-      {PIANO_KEYS.map((config) => (
+      {keys.map((config) => (
         <PianoKey
-          key={config.note}
+          key={`${config.note}-${config.label}`}
           config={config}
           isActive={activeNote === config.note}
           onPlay={onPlay}

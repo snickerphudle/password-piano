@@ -1,13 +1,18 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
-import { PIANO_KEYS, Note, PASSWORD_MELODY } from '@/lib/constants';
+import { KeyConfig, Note } from '@/lib/constants';
 import { playNote } from '@/lib/synth';
 
 const RESET_DELAY_MS = 900;
 
-export const usePiano = () => {
+interface UsePianoProps {
+  keys: KeyConfig[];
+  targetMelody: Note[];
+  onSuccess?: () => void;
+}
+
+export const usePiano = ({ keys, targetMelody, onSuccess }: UsePianoProps) => {
   const [activeNote, setActiveNote] = useState<Note | null>(null);
   const [history, setHistory] = useState<Note[]>([]);
-  const [isUnlocked, setIsUnlocked] = useState(false);
   const lastNoteTime = useRef<number>(0);
 
   const handlePlay = useCallback((note: Note) => {
@@ -26,35 +31,33 @@ export const usePiano = () => {
         ? [note] 
         : [...prev, note];
       
-      // Keep only enough notes to match the password length
-      newHistory = newHistory.slice(-PASSWORD_MELODY.length);
+      // Keep only enough notes to match the target melody length
+      newHistory = newHistory.slice(-targetMelody.length);
       
-      if (newHistory.join(',') === PASSWORD_MELODY.join(',')) {
-        setIsUnlocked(true);
+      if (newHistory.join(',') === targetMelody.join(',')) {
+        if (onSuccess) onSuccess();
       }
       
       return newHistory;
     });
-  }, []);
+  }, [targetMelody, onSuccess]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.repeat) return;
       const key = e.key.toUpperCase();
       
-      // Special case for SPACE because key.toUpperCase() is just " " 
-      // but our PIANO_KEYS config uses "SPACE" as the label.
+      // Special case for SPACE
       if (e.key === ' ') {
-        const spaceConfig = PIANO_KEYS.find(k => k.label === 'SPACE');
+        const spaceConfig = keys.find(k => k.label === 'SPACE');
         if (spaceConfig) {
-          e.preventDefault(); // Prevent scrolling
+          e.preventDefault(); 
           handlePlay(spaceConfig.note);
           return;
         }
       }
 
-      // Normal keys
-      const keyConfig = PIANO_KEYS.find((k) => k.label === key);
+      const keyConfig = keys.find((k) => k.label === key);
       if (keyConfig) {
         handlePlay(keyConfig.note);
       }
@@ -62,10 +65,9 @@ export const usePiano = () => {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [handlePlay]);
+  }, [handlePlay, keys]);
 
   const reset = () => {
-    setIsUnlocked(false);
     setHistory([]);
     lastNoteTime.current = 0;
   };
@@ -73,7 +75,6 @@ export const usePiano = () => {
   return {
     activeNote,
     history,
-    isUnlocked,
     playNote: handlePlay,
     reset,
   };
