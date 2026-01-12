@@ -44,7 +44,7 @@ export const GAME_KEYS: KeyConfig[] = [
   { note: 'G5', label: '[', isBlack: false },
   { note: 'G#5', label: ']', isBlack: true },
   { note: 'A5', label: 'Enter', isBlack: false },
-  { note: 'A#5', label: '', isBlack: true }, 
+  { note: 'A#5', label: '+', isBlack: true }, 
   { note: 'B5', label: '\\', isBlack: false },
 ];
 
@@ -92,7 +92,23 @@ export const LEVELS: LevelConfig[] = [
     melody: ['A4', 'B4', 'C5'], 
     keys: GAME_KEYS
   },
-  // We can add more levels here later
+  {
+    id: 2,
+    name: "Darkness",
+    hint: "Paint it black, from left to right...",
+    // All black keys from left to right (C#4 to A#5)
+    // C#4, D#4, F#4, G#4, A#4, C#5, D#5, F#5, G#5, A#5
+    melody: ['C#4', 'D#4', 'F#4', 'G#4', 'A#4', 'C#5', 'D#5', 'F#5', 'G#5', 'A#5'],
+    keys: GAME_KEYS
+  },
+  {
+    id: 3,
+    name: "C Yourself on the Scale",
+    hint: "Climb the ladder from C to shining C...",
+    // C Major Scale: C4, D4, E4, F4, G4, A4, B4, C5
+    melody: ['C4', 'D4', 'E4', 'F4', 'G4', 'A4', 'B4', 'C5'],
+    keys: GAME_KEYS
+  }
 ];
 
 export const PLAY_MELODY: Note[] = ['C4', 'E4', 'G4', 'C5'];

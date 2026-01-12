@@ -11,11 +11,30 @@ export default function Home() {
   const [view, setView] = useState<'HOME' | 'LOCKED' | 'UNLOCKED'>('HOME');
   const [currentLevel, setCurrentLevel] = useState<LevelConfig>(LEVELS[0]); // Start with Level 1
 
+  const handleNextLevel = () => {
+    const currentIndex = LEVELS.findIndex(l => l.id === currentLevel.id);
+    const nextLevel = LEVELS[currentIndex + 1];
+    if (nextLevel) {
+      setCurrentLevel(nextLevel);
+      setView('LOCKED');
+    } else {
+      // Game Over / All Levels Complete logic could go here
+      // For now, just reset to home or show a victory state
+      setView('HOME');
+      setCurrentLevel(LEVELS[0]);
+    }
+  };
+
+  const handleBackToHome = () => {
+    setView('HOME');
+    setCurrentLevel(LEVELS[0]);
+  };
+
   return (
     <main className="min-h-screen bg-neutral-900 flex flex-col items-center justify-center overflow-hidden relative">
       {/* Home Button - Visible on all screens for easy navigation */}
       <button 
-        onClick={() => setView('HOME')}
+        onClick={handleBackToHome}
         className="absolute top-6 left-6 text-neutral-500 hover:text-white transition-colors z-50 flex items-center gap-2 group"
       >
         <svg 
@@ -45,7 +64,12 @@ export default function Home() {
           onSuccess={() => setView('UNLOCKED')} 
         />
       )}
-      {view === 'UNLOCKED' && <UnlockedView onLock={() => setView('HOME')} />}
+      {view === 'UNLOCKED' && (
+        <UnlockedView 
+          onNextLevel={handleNextLevel} 
+          isLastLevel={currentLevel.id === LEVELS[LEVELS.length - 1].id}
+        />
+      )}
     </main>
   );
 }
@@ -170,17 +194,34 @@ function LockedView({ level, onSuccess }: { level: LevelConfig; onSuccess: () =>
   );
 }
 
-function UnlockedView({ onLock }: { onLock: () => void }) {
+function UnlockedView({ onNextLevel, isLastLevel }: { onNextLevel: () => void; isLastLevel: boolean }) {
   return (
-    <div className="flex flex-col items-center justify-center text-center animate-in fade-in duration-700">
-      <h1 className="text-5xl font-bold text-green-500 mb-4 tracking-tight">Access Granted</h1>
-      <p className="text-neutral-400 mb-12 text-lg">You have successfully unlocked the piano.</p>
-      <button
-        onClick={onLock}
-        className="px-8 py-3 bg-neutral-800 text-white rounded-full hover:bg-neutral-700 transition-all border border-neutral-700 hover:border-neutral-500"
-      >
-        Back to Home
-      </button>
+    <div className="flex flex-col items-center justify-center text-center animate-in fade-in duration-700 relative">
+      {/* Background Confetti / Glow Effect could go here */}
+      <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/10 to-purple-500/10 blur-3xl -z-10" />
+      
+      <div className="space-y-6 z-10">
+        <h1 className="text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-emerald-600 mb-4 tracking-tighter uppercase drop-shadow-lg">
+          Access Granted
+        </h1>
+        <p className="text-neutral-400 mb-8 text-lg font-light tracking-wide">
+          Authentication verified. Welcome to the system.
+        </p>
+        
+        <button
+          onClick={onNextLevel}
+          className="group relative px-8 py-4 bg-white text-black font-bold rounded-full hover:scale-105 transition-all duration-300 shadow-[0_0_20px_rgba(255,255,255,0.3)] hover:shadow-[0_0_30px_rgba(255,255,255,0.5)]"
+        >
+          <span className="relative z-10 flex items-center gap-2">
+            {isLastLevel ? "RETURN TO HOME" : "NEXT LEVEL"}
+            {!isLastLevel && (
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="group-hover:translate-x-1 transition-transform">
+                <path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>
+              </svg>
+            )}
+          </span>
+        </button>
+      </div>
     </div>
   );
 }
