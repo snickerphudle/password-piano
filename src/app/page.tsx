@@ -1,9 +1,10 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Piano } from '@/components/Piano';
 import { usePiano } from '@/hooks/usePiano';
 import { PASSWORD_MELODY, PLAY_MELODY, GAME_KEYS, HOME_KEYS } from '@/lib/constants';
+import { TextDecipher } from '@/components/TextDecipher';
 
 export default function Home() {
   const [view, setView] = useState<'HOME' | 'LOCKED' | 'UNLOCKED'>('HOME');
@@ -49,22 +50,40 @@ function HomeView({ onPlaySuccess }: { onPlaySuccess: () => void }) {
     onSuccess: onPlaySuccess,
   });
 
+  const [showPianoText, setShowPianoText] = useState(false);
+
+  useEffect(() => {
+    // Delay the appearance of "PIANO" slightly to let "PASSWORD" decipher start
+    const timer = setTimeout(() => setShowPianoText(true), 1500);
+    return () => clearTimeout(timer);
+  }, []);
+
   return (
-    <div className="flex flex-col items-center animate-in fade-in duration-700 space-y-12">
-      <div className="text-center space-y-4">
-        <h1 className="text-6xl md:text-8xl font-black text-white tracking-tighter uppercase leading-none">
-          Password
-          <br />
-          <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 to-purple-500">
-            Piano
+    <div className="flex flex-col items-center space-y-12 w-full max-w-4xl px-4">
+      <div className="text-center space-y-2 flex flex-col items-center">
+        {/* Sneaky Decipher Effect */}
+        <div className="text-6xl md:text-8xl font-black text-neutral-100 tracking-tighter uppercase leading-none select-none relative z-10">
+           <TextDecipher text="PASSWORD" />
+        </div>
+        
+        {/* Shadow Fade In Effect */}
+        <div 
+           className={`text-6xl md:text-8xl font-black tracking-tighter uppercase leading-tight transition-all duration-[2000ms] ease-out
+             ${showPianoText ? 'opacity-100 translate-y-0 blur-0' : 'opacity-0 translate-y-10 blur-xl'}
+             px-4 pb-4
+           `}
+        >
+          <span className="text-transparent p-1 bg-clip-text bg-gradient-to-r from-indigo-500 to-purple-500 drop-shadow-[0_10px_10px_rgba(79,70,229,0.5)]">
+            PIANO
           </span>
-        </h1>
-        <p className="text-neutral-500 font-mono tracking-widest text-sm">
+        </div>
+
+        <p className={`text-neutral-500 font-mono tracking-[0.3em] text-sm mt-8 transition-opacity duration-1000 delay-[2500ms] ${showPianoText ? 'opacity-100' : 'opacity-0'}`}>
           TYPE "PLAY" TO START
         </p>
       </div>
 
-      <div className="relative p-8 bg-neutral-800/50 rounded-2xl border border-neutral-800 backdrop-blur-sm">
+      <div className={`relative p-8 bg-neutral-900/80 rounded-2xl border border-neutral-800/50 backdrop-blur-md shadow-2xl shadow-black transition-all duration-1000 delay-[3000ms] ${showPianoText ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}>
         <Piano keys={HOME_KEYS} activeNote={activeNote} onPlay={playNote} />
       </div>
     </div>
