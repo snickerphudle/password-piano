@@ -8,12 +8,33 @@ import { PASSWORD_MELODY, PLAY_MELODY, GAME_KEYS, HOME_KEYS } from '@/lib/consta
 export default function Home() {
   const [view, setView] = useState<'HOME' | 'LOCKED' | 'UNLOCKED'>('HOME');
 
-  // We need separate hooks for different states because the keys/melody change
-  // Note: In a real app we might mount/unmount components to reset state, 
-  // but here we can just conditional render.
-  
   return (
-    <main className="min-h-screen bg-neutral-900 flex flex-col items-center justify-center overflow-hidden">
+    <main className="min-h-screen bg-neutral-900 flex flex-col items-center justify-center overflow-hidden relative">
+      {/* Home Button - Visible on all screens for easy navigation */}
+      <button 
+        onClick={() => setView('HOME')}
+        className="absolute top-6 left-6 text-neutral-500 hover:text-white transition-colors z-50 flex items-center gap-2 group"
+      >
+        <svg 
+          xmlns="http://www.w3.org/2000/svg" 
+          width="20" 
+          height="20" 
+          viewBox="0 0 24 24" 
+          fill="none" 
+          stroke="currentColor" 
+          strokeWidth="2" 
+          strokeLinecap="round" 
+          strokeLinejoin="round"
+          className="group-hover:-translate-x-1 transition-transform"
+        >
+          <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+          <polyline points="9 22 9 12 15 12 15 22"/>
+        </svg>
+        <span className="text-sm font-medium tracking-wide opacity-0 group-hover:opacity-100 transition-opacity -ml-2 group-hover:ml-0">
+          HOME
+        </span>
+      </button>
+
       {view === 'HOME' && <HomeView onPlaySuccess={() => setView('LOCKED')} />}
       {view === 'LOCKED' && <LockedView onSuccess={() => setView('UNLOCKED')} />}
       {view === 'UNLOCKED' && <UnlockedView onLock={() => setView('HOME')} />}
