@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { clsx } from 'clsx';
 import { Piano } from '@/components/Piano';
 import { usePiano } from '@/hooks/usePiano';
 import { PASSWORD_MELODY, PLAY_MELODY, GAME_KEYS, HOME_KEYS } from '@/lib/constants';
@@ -96,7 +97,7 @@ function HomeView({ onPlaySuccess }: { onPlaySuccess: () => void }) {
 }
 
 function LockedView({ onSuccess }: { onSuccess: () => void }) {
-  const { activeNote, history, playNote, reset, lastInteraction } = usePiano({
+  const { activeNote, history, playNote, reset, lastInteraction, isError } = usePiano({
     keys: GAME_KEYS,
     targetMelody: PASSWORD_MELODY,
     onSuccess,
@@ -125,21 +126,33 @@ function LockedView({ onSuccess }: { onSuccess: () => void }) {
 
       {/* Visual Feedback / Progress */}
       <div className="flex flex-col items-center gap-4">
-        <div className="flex gap-2 h-8 items-center justify-center min-w-[100px]">
+        <div 
+          className="flex gap-2 h-12 items-center justify-center min-w-[120px] px-4 rounded-lg bg-neutral-800/50 border border-neutral-700"
+        >
           {history.map((note, i) => (
             <div
               key={`${note}-${i}`}
-              className="w-3 h-3 rounded-full bg-indigo-500 shadow-[0_0_10px_rgba(99,102,241,0.5)] animate-in fade-in zoom-in duration-300"
-            />
+              className={clsx(
+                "text-2xl drop-shadow-[0_0_8px_rgba(99,102,241,0.8)] animate-in fade-in zoom-in duration-300 transition-colors",
+                isError ? "text-red-500 drop-shadow-[0_0_8px_rgba(239,68,68,0.8)]" : "text-indigo-400"
+              )}
+            >
+              ♪
+            </div>
           ))}
           {history.length === 0 && (
-            <span className="text-neutral-700 text-xs italic">Waiting for input...</span>
+            <span className={clsx(
+              "text-xs italic transition-colors duration-300",
+              isError ? "text-red-400 font-bold" : "text-neutral-700"
+            )}>
+              {isError ? "Incorrect Sequence" : "Waiting for input..."}
+            </span>
           )}
         </div>
 
         <button 
           onClick={reset}
-          className="text-xs text-neutral-600 hover:text-neutral-400 uppercase tracking-widest transition-colors px-4 py-2"
+          className="text-xs text-neutral-600 hover:text-neutral-400 uppercase tracking-widest transition-colors px-4 py-2 border border-neutral-800 rounded hover:border-neutral-700"
         >
           Clear
         </button>

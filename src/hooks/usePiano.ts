@@ -2,7 +2,7 @@ import { useEffect, useState, useCallback, useRef } from 'react';
 import { KeyConfig, Note } from '@/lib/constants';
 import { playNote } from '@/lib/synth';
 
-const RESET_DELAY_MS = 2000; // Relaxed a bit since we have strict matching now
+const RESET_DELAY_MS = 2000;
 
 interface UsePianoProps {
   keys: KeyConfig[];
@@ -22,6 +22,7 @@ export const usePiano = ({ keys, targetMelody, onSuccess }: UsePianoProps) => {
   const [activeNote, setActiveNote] = useState<Note | null>(null);
   const [history, setHistory] = useState<Note[]>([]);
   const [lastInteraction, setLastInteraction] = useState<InteractionEvent | null>(null);
+  const [isError, setIsError] = useState(false);
   const lastNoteTime = useRef<number>(0);
 
   const handlePlay = useCallback((note: Note) => {
@@ -35,19 +36,24 @@ export const usePiano = ({ keys, targetMelody, onSuccess }: UsePianoProps) => {
     lastNoteTime.current = now;
 
     setHistory((prev) => {
-      // Logic: Strict Prefix Matching
-      // 1. If we timed out, we must reset. But wait, if we reset, is this new note the start?
-      //    Yes. If time > delay, we treat this as the *first* note of a new attempt.
-      
+      // If error is currently showing, don't accept input until it clears?
+      // Or just clear it immediately. Let's clear immediately for responsiveness.
+      if (isError) {
+        setIsError(false);
+        return [note]; // Start new sequence with this note? 
+        // Actually, if we are in error state, the previous history is about to be wiped.
+        // But for UX, better to just let this new note be the start of a fresh attempt.
+      }
+
       let potentialHistory = (timeSinceLast > RESET_DELAY_MS) ? [] : [...prev];
       
-      // 2. Check if this new note matches the NEXT expected note in the target melody
       const expectedNoteIndex = potentialHistory.length;
       const expectedNote = targetMelody[expectedNoteIndex];
 
       if (note === expectedNote) {
         // CORRECT
         const newHistory = [...potentialHistory, note];
+        setIsError(false); 
         
         setLastInteraction({
           note,
@@ -55,34 +61,41 @@ export const usePiano = ({ keys, targetMelody, onSuccess }: UsePianoProps) => {
           id: now,
         });
 
-        // Check for full success
         if (newHistory.length === targetMelody.length) {
            if (onSuccess) onSuccess();
-           // Optional: Reset history after success? Usually yes.
            return []; 
         }
 
         return newHistory;
       } else {
         // WRONG
-        // Strict Mode: Any wrong note resets the progress immediately.
+        setIsError(true);
+        
         setLastInteraction({
           note,
           status: 'wrong',
           id: now,
         });
+
+        // Add the wrong note to history temporarily so we can show it turning red
+        const errorHistory = [...potentialHistory, note];
         
-        return [];
+        // Reset history after a delay to show the red error state
+        setTimeout(() => {
+          setIsError(false);
+          setHistory([]);
+        }, 500);
+        
+        return errorHistory;
       }
     });
-  }, [targetMelody, onSuccess]);
+  }, [targetMelody, onSuccess, isError]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.repeat) return;
       const key = e.key.toUpperCase();
       
-      // Special case for SPACE
       if (e.key === ' ') {
         const spaceConfig = keys.find(k => k.label === 'SPACE');
         if (spaceConfig) {
@@ -106,12 +119,14 @@ export const usePiano = ({ keys, targetMelody, onSuccess }: UsePianoProps) => {
     setHistory([]);
     lastNoteTime.current = 0;
     setLastInteraction(null);
+    setIsError(false);
   };
 
   return {
     activeNote,
     history,
     lastInteraction,
+    isError,
     playNote: handlePlay,
     reset,
   };
