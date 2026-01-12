@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
-import { OCTAVE, Note, PASSWORD_MELODY } from '@/lib/constants';
+import { PIANO_KEYS, Note, PASSWORD_MELODY } from '@/lib/constants';
 import { playNote } from '@/lib/synth';
 
 const RESET_DELAY_MS = 900;
@@ -27,9 +27,6 @@ export const usePiano = () => {
         : [...prev, note];
       
       // Keep only enough notes to match the password length
-      // Actually, for a strict password reset, usually you want exact match.
-      // But keeping a rolling window is also fine if we reset on timeout.
-      // Let's stick to rolling window for now, but the timeout enforces "grouping".
       newHistory = newHistory.slice(-PASSWORD_MELODY.length);
       
       if (newHistory.join(',') === PASSWORD_MELODY.join(',')) {
@@ -44,7 +41,20 @@ export const usePiano = () => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.repeat) return;
       const key = e.key.toUpperCase();
-      const keyConfig = OCTAVE.find((k) => k.label === key);
+      
+      // Special case for SPACE because key.toUpperCase() is just " " 
+      // but our PIANO_KEYS config uses "SPACE" as the label.
+      if (e.key === ' ') {
+        const spaceConfig = PIANO_KEYS.find(k => k.label === 'SPACE');
+        if (spaceConfig) {
+          e.preventDefault(); // Prevent scrolling
+          handlePlay(spaceConfig.note);
+          return;
+        }
+      }
+
+      // Normal keys
+      const keyConfig = PIANO_KEYS.find((k) => k.label === key);
       if (keyConfig) {
         handlePlay(keyConfig.note);
       }
