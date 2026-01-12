@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { clsx } from 'clsx';
 import { Piano } from '@/components/Piano';
 import { usePiano } from '@/hooks/usePiano';
-import { PASSWORD_MELODY, PLAY_MELODY, GAME_KEYS, HOME_KEYS, LEVELS, LevelConfig } from '@/lib/constants';
+import { PLAY_MELODY, GAME_KEYS, HOME_KEYS, LEVELS, LevelConfig } from '@/lib/constants';
 import { TextDecipher } from '@/components/TextDecipher';
 
 export default function Home() {
